@@ -1,5 +1,5 @@
 ---
-title: 'Phigros_standard_for_evaluation'
+title: 'Phigros单Note评分标准'
 date: 2024-02-05T17:33:46+08:00
 draft: false
 featured_image: 'posts/2024.02/assets/Phigros.png'
