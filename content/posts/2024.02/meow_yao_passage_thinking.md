@@ -11,7 +11,9 @@ FAIL SMP交给KOFTWAR后，FAIL SMP被并入了RSPixel。_然而据KOFTWAR所说
 
 玩家们在盼着RSPixel公测的同时，Meow_Yan突然中途貌似失去理智，销掉了QQ账号。之后发现Meow_Yan在Github仍活跃。
 
-然后我就去找了他的Github主页，发现他建了Blog网站。然后就看到了这篇文章：[这里](https://meow-yan.github.io/2024/02/08/RSPixel%E6%97%A5%E5%90%8E%E5%8F%91%E5%B1%95%E7%9B%AE%E6%A0%87%E5%92%8C%E5%8F%91%E5%B1%95%E6%96%B9%E9%92%88/)
+然后我就去找了他的Github主页，发现他建了Blog网站。~~然后就看到了这篇文章：[这里](https://meow-yan.github.io/2024/02/08/RSPixel%E6%97%A5%E5%90%8E%E5%8F%91%E5%B1%95%E7%9B%AE%E6%A0%87%E5%92%8C%E5%8F%91%E5%B1%95%E6%96%B9%E9%92%88/)~~
+
+**2024.02.11注：该链接已失效。且不可能再补回来。因为Meow_Yan自己认为写的太不理智了，已删库（为了避免留下Git记录）。** ~~_哈哈，见证黑历史！_~~
 
 怎么说呢，有些地方太理想化了……
 
