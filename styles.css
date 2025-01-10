@@ -1,0 +1,134 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex: 1;
+    position: relative;
+}
+
+.sidebar {
+    position: relative;
+    width: 200px;
+    background-color: #66ccff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: visible;
+    z-index: 10;
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar a:first-child {
+    margin-top: 30px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 10px;
+    color: #333;
+    text-decoration: none;
+    margin: 5px 0;
+    border-radius: 4px;
+}
+
+.sidebar a:hover {
+    background-color: #ddd;
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%);
+}
+
+.toggle-sidebar {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.toggle-sidebar:hover {
+    background-color: #0056b3;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+    transition: margin-left 0.3s ease-in-out;
+    overflow: visible;
+}
+
+.content .cover {
+    height: 400px;
+    margin: -20px;
+    margin-bottom: 20px;
+    background-color: #ccc;
+    background-image: url('');
+    background-size: cover;
+    background-position: center top;
+    transition: opacity 0.3s ease;
+}
+
+footer {
+    position: relative;
+    width: 100%;
+    bottom: 0;
+    font-size: 25px;
+    text-align: center;
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.back-to-top:hover {
+    background-color: #0056b3;
+}
+
+pre code {
+    font-family: "Fira Code", "Courier New", monospace;
+    font-size: 14px;
+}
+
+code {
+    font-family: "Fira Code", "Courier New", monospace;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 250px;
+        transform: translateX(-100%);
+    }
+
+    .sidebar.visible {
+        transform: translateX(0);
+    }
+
+    .content {
+        margin-left: 0;
+    }
+}
