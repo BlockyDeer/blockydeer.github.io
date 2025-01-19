@@ -18,13 +18,20 @@ footer {
     width: 100%;
     height: 300px;
     overflow: hidden;
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.container-placeholder {
+    width: 100%;
+    padding-top: 300px;
 }
 
 .container::before {
     content: "";
     position: absolute;
-    top: 0;
+    top: 0px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -37,7 +44,7 @@ footer {
 .container img {
     width: 100%;
     height: 300px;
-    background-color: : #ccc;
+    background-color: #ccc;
     background-position: center top;
     object-fit: cover;
     z-index: 2;
@@ -56,10 +63,14 @@ footer {
 }
 
 .description {
-    justify-content: center;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    /* justify-content: center; */
     align-items: center;
     align-self: center;
-    width: 60%
+    width: 100vw;
 }
 
 .description h1 {
@@ -74,6 +85,7 @@ footer {
     text-decoration: none;
     position: relative;
     transition: color 0.3s ease;
+    text-decoration: none;
 }
 
 .recently-posts a::after {
@@ -81,7 +93,7 @@ footer {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 0;
+  width: 0%;
   height: 2px;
   background: linear-gradient(to right, #0077cc, #00aaff);
   transition: width 0.3s ease;
@@ -89,7 +101,6 @@ footer {
 
 .recently-posts a:hover {
   color: #005fa3;
-  text-decoration: none;
 }
 
 .recently-posts a:hover::after {
