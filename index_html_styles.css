@@ -70,11 +70,6 @@ footer {
     backdrop-filter: blur(7px);
 }
 
-.description li {
-    padding: 3px;
-    list-style: none;
-}
-
 .description h1 {
     text-align: center;
     padding-top: 20px;
@@ -88,7 +83,6 @@ footer {
     position: relative;
     transition: color 0.3s ease;
     text-decoration: none;
-    white-space: nowrap;
 }
 
 .recently-posts a::after {
