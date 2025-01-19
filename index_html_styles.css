@@ -18,7 +18,14 @@ footer {
     width: 100%;
     height: 300px;
     overflow: hidden;
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.container-placeholder {
+    width: 100%;
+    padding-top: 300px;
 }
 
 .container::before {
@@ -56,18 +63,14 @@ footer {
 }
 
 .description {
-    max-height: calc(100vh - 300px);
-    margin: auto 0px;
-    overflow: scroll;
+    overflow: auto;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    margin: auto;
+    /* justify-content: center; */
     align-items: center;
     align-self: center;
-    width: 60%;
-    border-radius: 26px;
-    padding: 24px 24px;
-    backdrop-filter: blur(7px);
+    width: 100vw;
 }
 
 .description h1 {
