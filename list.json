@@ -46,5 +46,11 @@
     "link": "posts/2024.08/mumble-server.html",
     "author": "BlockyDeer",
     "time": "2024-08-10T12:47:05+08:00"
+  },
+  {
+    "title": "Linux更换有些新光标主题时变回默认，但是光标样式预览能正常工作",
+    "link": "posts/2025.01/cursor-theme-doesnt-work.html",
+    "author": "BlockyDeer",
+    "time": "2025-01-19T13:24:50+08:00"
   }
 ]
