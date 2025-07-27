@@ -45,6 +45,13 @@ body {
     transform: translateX(-100%);
 }
 
+blockquote {
+    border: 2px solid #000000;
+    border-radius: 10px;
+    background-color: #ffffff
+    margin-left: 0px;
+}
+
 .toggle-sidebar {
     position: fixed;
     top: 10px;
