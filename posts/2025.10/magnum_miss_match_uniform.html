@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方鹿的瞎玩日志∠( ᐛ 」∠)＿</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/default.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/go.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <button class="toggle-sidebar" id="toggleSidebar">☰ 其他文章</button>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div id="sidebar-links">少女折寿中……</div>
+        </div>
+
+        <div class="content" id="content">
+          <div class="cover" id="cover"></div>
+          <!--从这里插入Markdown转来的部分-->
+          <h1 id="magnum-setuniform-设置-matrix4-失败">Magnum setUniform 设置
+Matrix4 失败</h1>
+<p>我在写一个 Magnum Engine 程序的时候。使用了一个自己的
+Shader，我寻思需要设置 MVP 矩阵。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">mat4</span> mvp<span class="op">;</span></span></code></pre></div>
+<p>所以在<code>CommonShader</code>类里添加：</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CommonShader <span class="kw">final</span> <span class="op">:</span> <span class="kw">public</span> Magnum<span class="op">::</span>GL<span class="op">::</span>AbstractShaderProgram <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">static</span> <span class="kw">constexpr</span> Magnum<span class="op">::</span>Int texture_unit <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        Magnum<span class="op">::</span>Int mvp_uniform<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">using</span> VertexPosition <span class="op">=</span> Magnum<span class="op">::</span>GL<span class="op">::</span>Attribute<span class="op">&lt;</span><span class="dv">0</span><span class="op">,</span> Magnum<span class="op">::</span>Vector2<span class="op">&gt;;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">using</span> VertexTexCoord <span class="op">=</span> Magnum<span class="op">::</span>GL<span class="op">::</span>Attribute<span class="op">&lt;</span><span class="dv">1</span><span class="op">,</span> Magnum<span class="op">::</span>Vector2<span class="op">&gt;;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        CommonShader<span class="op">();</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        CommonShader <span class="op">&amp;</span>bind_texture<span class="op">(</span>Magnum<span class="op">::</span>GL<span class="op">::</span>Texture2D <span class="op">&amp;</span>texture<span class="op">);</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        CommonShader <span class="op">&amp;</span>set_mvp<span class="op">(</span><span class="at">const</span> Magnum<span class="op">::</span>Matrix4 <span class="op">&amp;</span>mvp<span class="op">);</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>CommonShader <span class="op">&amp;</span>CommonShader<span class="op">::</span>set_mvp<span class="op">(</span><span class="at">const</span> Magnum<span class="op">::</span>Matrix4 <span class="op">&amp;</span>mvp<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        setUniform<span class="op">(</span>mvp_uniform<span class="op">,</span> mvp<span class="op">);</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">*</span><span class="kw">this</span><span class="op">;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>编译器在<code>setUniform</code>处报错：</p>
+<pre><code>/usr/include/Magnum/GL/AbstractShaderProgram.h:1635:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Float&#39; (aka &#39;float&#39;) for 2nd argument
+ 1635 |         void setUniform(Int location, Float value);
+      |              ^                        ~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1636:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;2, Float&gt;&#39; (aka &#39;const Vector&lt;2, float&gt;&#39;) for 2nd argument
+ 1636 |         void setUniform(Int location, const Math::Vector&lt;2, Float&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1637:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;3, Float&gt;&#39; (aka &#39;const Vector&lt;3, float&gt;&#39;) for 2nd argument
+ 1637 |         void setUniform(Int location, const Math::Vector&lt;3, Float&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1638:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;4, Float&gt;&#39; (aka &#39;const Vector&lt;4, float&gt;&#39;) for 2nd argument
+ 1638 |         void setUniform(Int location, const Math::Vector&lt;4, Float&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1653:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Int&#39; (aka &#39;int&#39;) for 2nd argument
+ 1653 |         void setUniform(Int location, Int value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1654:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;2, Int&gt;&#39; (aka &#39;const Vector&lt;2, int&gt;&#39;) for 2nd argument
+ 1654 |         void setUniform(Int location, const Math::Vector&lt;2, Int&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1655:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;3, Int&gt;&#39; (aka &#39;const Vector&lt;3, int&gt;&#39;) for 2nd argument
+ 1655 |         void setUniform(Int location, const Math::Vector&lt;3, Int&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1656:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;4, Int&gt;&#39; (aka &#39;const Vector&lt;4, int&gt;&#39;) for 2nd argument
+ 1656 |         void setUniform(Int location, const Math::Vector&lt;4, Int&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1675:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;UnsignedInt&#39; (aka &#39;unsigned int&#39;) for 2nd argument
+ 1675 |         void setUniform(Int location, UnsignedInt value);
+      |              ^                        ~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1676:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;2, UnsignedInt&gt;&#39; (aka &#39;const Vector&lt;2, unsigned int&gt;&#39;) for 2nd argument
+ 1676 |         void setUniform(Int location, const Math::Vector&lt;2, UnsignedInt&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1677:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;3, UnsignedInt&gt;&#39; (aka &#39;const Vector&lt;3, unsigned int&gt;&#39;) for 2nd argument
+ 1677 |         void setUniform(Int location, const Math::Vector&lt;3, UnsignedInt&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1678:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;4, UnsignedInt&gt;&#39; (aka &#39;const Vector&lt;4, unsigned int&gt;&#39;) for 2nd argument
+ 1678 |         void setUniform(Int location, const Math::Vector&lt;4, UnsignedInt&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1697:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Double&#39; (aka &#39;double&#39;) for 2nd argument
+ 1697 |         void setUniform(Int location, Double value);
+      |              ^                        ~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1698:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;2, Double&gt;&#39; (aka &#39;const Vector&lt;2, double&gt;&#39;) for 2nd argument
+ 1698 |         void setUniform(Int location, const Math::Vector&lt;2, Double&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1699:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;3, Double&gt;&#39; (aka &#39;const Vector&lt;3, double&gt;&#39;) for 2nd argument
+ 1699 |         void setUniform(Int location, const Math::Vector&lt;3, Double&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1700:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;const Math::Vector&lt;4, Double&gt;&#39; (aka &#39;const Vector&lt;4, double&gt;&#39;) for 2nd argument
+ 1700 |         void setUniform(Int location, const Math::Vector&lt;4, Double&gt;&amp; value); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1716:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Float&gt;&#39; (aka &#39;ArrayView&lt;const float&gt;&#39;) for 2nd argument
+ 1716 |         void setUniform(Int location, Containers::ArrayView&lt;const Float&gt; values);
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1717:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;2, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;2, float&gt;&gt;&#39;) for 2nd argument
+ 1717 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;2, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1718:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;3, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;3, float&gt;&gt;&#39;) for 2nd argument
+ 1718 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;3, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1719:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;4, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;4, float&gt;&gt;&#39;) for 2nd argument
+ 1719 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;4, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1734:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Int&gt;&#39; (aka &#39;ArrayView&lt;const int&gt;&#39;) for 2nd argument
+ 1734 |         void setUniform(Int location, Containers::ArrayView&lt;const Int&gt; values);
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1735:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;2, Int&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;2, int&gt;&gt;&#39;) for 2nd argument
+ 1735 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;2, Int&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1736:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;3, Int&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;3, int&gt;&gt;&#39;) for 2nd argument
+ 1736 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;3, Int&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1737:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;4, Int&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;4, int&gt;&gt;&#39;) for 2nd argument
+ 1737 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;4, Int&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1756:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const UnsignedInt&gt;&#39; (aka &#39;ArrayView&lt;const unsigned int&gt;&#39;) for 2nd argument
+ 1756 |         void setUniform(Int location, Containers::ArrayView&lt;const UnsignedInt&gt; values);
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1757:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;2, UnsignedInt&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;2, unsigned int&gt;&gt;&#39;) for 2nd argument
+ 1757 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;2, UnsignedInt&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1758:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;3, UnsignedInt&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;3, unsigned int&gt;&gt;&#39;) for 2nd argument
+ 1758 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;3, UnsignedInt&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1759:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;4, UnsignedInt&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;4, unsigned int&gt;&gt;&#39;) for 2nd argument
+ 1759 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;4, UnsignedInt&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1778:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Double&gt;&#39; (aka &#39;ArrayView&lt;const double&gt;&#39;) for 2nd argument
+ 1778 |         void setUniform(Int location, Containers::ArrayView&lt;const Double&gt; values);
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1779:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;2, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;2, double&gt;&gt;&#39;) for 2nd argument
+ 1779 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;2, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1780:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;3, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;3, double&gt;&gt;&#39;) for 2nd argument
+ 1780 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;3, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1781:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::Vector&lt;4, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const Vector&lt;4, double&gt;&gt;&#39;) for 2nd argument
+ 1781 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::Vector&lt;4, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1819:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 2, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;2, 2, float&gt;&gt;&#39;) for 2nd argument
+ 1819 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 2, Float&gt;&gt; values);
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1820:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 3, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;3, 3, float&gt;&gt;&#39;) for 2nd argument
+ 1820 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 3, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1821:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 4, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;4, 4, float&gt;&gt;&#39;) for 2nd argument
+ 1821 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 4, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1839:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 3, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;2, 3, float&gt;&gt;&#39;) for 2nd argument
+ 1839 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 3, Float&gt;&gt; values);
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1840:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 2, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;3, 2, float&gt;&gt;&#39;) for 2nd argument
+ 1840 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 2, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1841:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 4, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;2, 4, float&gt;&gt;&#39;) for 2nd argument
+ 1841 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 4, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1842:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 2, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;4, 2, float&gt;&gt;&#39;) for 2nd argument
+ 1842 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 2, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1843:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 4, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;3, 4, float&gt;&gt;&#39;) for 2nd argument
+ 1843 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 4, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1844:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 3, Float&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;4, 3, float&gt;&gt;&#39;) for 2nd argument
+ 1844 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 3, Float&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1863:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 2, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;2, 2, double&gt;&gt;&#39;) for 2nd argument
+ 1863 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 2, Double&gt;&gt; values);
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1864:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 3, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;3, 3, double&gt;&gt;&#39;) for 2nd argument
+ 1864 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 3, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1865:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 4, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;4, 4, double&gt;&gt;&#39;) for 2nd argument
+ 1865 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 4, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1866:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 3, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;2, 3, double&gt;&gt;&#39;) for 2nd argument
+ 1866 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 3, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1867:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 2, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;3, 2, double&gt;&gt;&#39;) for 2nd argument
+ 1867 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 2, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1868:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 4, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;2, 4, double&gt;&gt;&#39;) for 2nd argument
+ 1868 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;2, 4, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1869:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 2, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;4, 2, double&gt;&gt;&#39;) for 2nd argument
+ 1869 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 2, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1870:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 4, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;3, 4, double&gt;&gt;&#39;) for 2nd argument
+ 1870 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;3, 4, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1871:14: note: candidate function not viable: cannot convert argument of incomplete type &#39;const Magnum::Matrix4&#39; (aka &#39;const Matrix4&lt;float&gt;&#39;) to &#39;Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 3, Double&gt;&gt;&#39; (aka &#39;ArrayView&lt;const RectangularMatrix&lt;4, 3, double&gt;&gt;&#39;) for 2nd argument
+ 1871 |         void setUniform(Int location, Containers::ArrayView&lt;const Math::RectangularMatrix&lt;4, 3, Double&gt;&gt; values); /**&lt; @overload */
+      |              ^                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/Magnum/GL/AbstractShaderProgram.h:1802:68: note: candidate template ignored: could not match &#39;Math::RectangularMatrix&#39; against &#39;Magnum::Matrix4&#39;
+ 1802 |         template&lt;std::size_t cols, std::size_t rows, class T&gt; void setUniform(Int location, const Math::RectangularMatrix&lt;cols, rows, T&gt;&amp; value) {
+      |                                                                    ^
+2 warnings and 1 error generated.</code></pre>
+<p>重点在于最后一个，类型<code>Magnum::Matrix4</code>居然无法匹配<code>Magnum::Math::RectangularMatrix</code></p>
+<p>翻文档也好，翻头文件也好，我看到<code>Magnum::Matrix4</code>是<code>Magnum::Math::Matrix4&lt;float&gt;</code>的一个别名：</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="an">@brief</span><span class="co"> 4x4 float transformation matrix</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">Equivalent to GLSL </span><span class="an">@glsl</span><span class="co"> mat4 </span><span class="an">@ce.</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="an">@see</span><span class="co"> </span><span class="an">@ref</span><span class="co"> </span><span class="cv">Matrix4x4</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="an">@m_keyword{mat4,GLSL</span><span class="co"> mat4,}</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">*/</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> Math<span class="op">::</span>Matrix4<span class="op">&lt;</span>Float<span class="op">&gt;</span> Matrix4<span class="op">;</span></span></code></pre></div>
+<p>而<code>Magnum::Math::Matrix4&lt;T&gt;</code>继承自<code>Magnum::Math::Matrix4x4&lt;T&gt;</code>。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Matrix4<span class="op">:</span> <span class="kw">public</span> Matrix4x4<span class="op">&lt;</span>T<span class="op">&gt;</span></span></code></pre></div>
+<p><code>Magnum::Math::Matrix4x4&lt;T&gt;</code>是<code>Magnum::Math::Matrix&lt;4, T&gt;</code>的别名：</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> Matrix4x4 <span class="op">=</span> Matrix<span class="op">&lt;</span><span class="dv">4</span><span class="op">,</span> T<span class="op">&gt;;</span></span></code></pre></div>
+<p><code>Magnum::Math::Matrix4x4&lt;size, T&gt;</code>继承自<code>Magnum::Math::RectangularMatrix&lt;size, size, T&gt;</code>：</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="bu">std::</span>size_t size<span class="op">,</span> <span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Matrix<span class="op">:</span> <span class="kw">public</span> RectangularMatrix<span class="op">&lt;</span>size<span class="op">,</span> size<span class="op">,</span> T<span class="op">&gt;</span></span></code></pre></div>
+<p>看上去应该正确匹配不是？Magnum给出的例子也是这样做的，但是为什么人家能编译但是我不行呢？</p>
+<p>在濒临崩溃之际，我<code>#include</code>了：</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Magnum/Math/Matrix4.h&gt;</span></span></code></pre></div>
+<p>结果编译通过了……</p>
+          <footer>
+            <p>© BlockyDeer 2024-2025</p>
+          </footer>
+        </div>
+    </div>
+    <button class="back-to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">点我回家</button>
+    <script src="/script.js"></script>
+</body>
+</html>

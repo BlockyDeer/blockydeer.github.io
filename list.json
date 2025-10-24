@@ -58,5 +58,11 @@
     "link": "posts/2025.07/openal.html",
     "author": "BlockyDeer",
     "time": "2025-07-27T20:52+08:00"
+  },
+  {
+    "title": "Magnum setUniform 设置 Matrix4 失败",
+    "link": "posts/2025.10/magnum_miss_match_uniform.html",
+    "author": "BlockyDeer",
+    "time": "2025-10-27T16:36+08:00"
   }
 ]
