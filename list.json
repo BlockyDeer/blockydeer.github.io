@@ -64,5 +64,11 @@
     "link": "posts/2025.10/magnum_miss_match_uniform.html",
     "author": "BlockyDeer",
     "time": "2025-10-27T16:36+08:00"
+  },
+  {
+    "title": "（水）使用你喜欢的任何编译系统编译 GDExtension（在 Godot 使用 C++）",
+    "link": "posts/2025.12/build_gdextension_with_any_build_system_you_like.html",
+    "author": "BlockyDeer",
+    "time": "2025-12-03T17:50+08:00"
   }
 ]

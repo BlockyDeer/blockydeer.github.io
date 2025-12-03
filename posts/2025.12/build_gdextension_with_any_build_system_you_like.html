@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方鹿的瞎玩日志∠( ᐛ 」∠)＿</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/default.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/go.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <button class="toggle-sidebar" id="toggleSidebar">☰ 其他文章</button>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div id="sidebar-links">少女折寿中……</div>
+        </div>
+
+        <div class="content" id="content">
+          <div class="cover" id="cover"></div>
+          <!--从这里插入Markdown转来的部分-->
+          <h1
+id="水使用你喜欢的任何编译系统编译-gdextension在-godot-使用-c">（水）使用你喜欢的任何编译系统编译
+GDExtension（在 Godot 使用 C++）</h1>
+<p>Godot 的文档在 <a
+href="https://docs.godotengine.org/zh-cn/4.x/tutorials/scripting/cpp/gdextension_cpp_example.html">GDExtension
+部分</a>的开头是这样说的（中间的加粗是我加的，原文没有）：</p>
+<blockquote>
+<p>这里有一些前置需求是你需要的：<br />
+A Godot 4 executable.<br />
+A C++ compiler.<br />
+<strong>使用 Scons 作为构建工具。</strong><br />
+A copy of the godot-cpp repository.</p>
+</blockquote>
+<p>但是我们真的必须用 <a href="https://www.scons.org/">Scons</a>
+作为构建工具构建你自己的 GDExtension
+吗？当然不。下面是你需要做的事情：</p>
+<ol type="1">
+<li>新建一个 GDExtension。（同文档）</li>
+<li>添加头文件路径。</li>
+<li>添加库搜索路径。</li>
+<li>链接 godot-cpp 的构建产物。</li>
+<li>指定输出名字等必要信息。</li>
+</ol>
+<h2 id="新建一个-gdextension">新建一个 GDExtension</h2>
+<p>我的做法是使用<code>git submodule</code>添加<code>godot-cpp</code>到我的项目下：</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> godot-cpp-test <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> godot-cpp-test</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule add <span class="at">-b</span> 4.5 https://github.com/godotengine/godot-cpp</span></code></pre></div>
+<p>然后让 godot 生成<code>extension_api.json</code>：</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">godot</span> <span class="at">--dump-extension-api</span></span></code></pre></div>
+<p>然后编译<code>godot-cpp</code>：</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> godot-cpp</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">scons</span> platform=<span class="op">&lt;</span>platform<span class="op">&gt;</span> custom_api_file=../extension_api.json</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ..</span></code></pre></div>
+<p>接下来新建你的源代码文件，我这里直接用了<code>lib.cpp</code>作为名字。你的可能有多个，那些都无伤大雅。</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">emacs</span> lib.cpp</span></code></pre></div>
+<h2 id="添加头文件路径">添加头文件路径</h2>
+<p>对于 GCC 和
+Clang，使用<code>-I</code>选项来指定头文件路径。你需要添加以下几个目录：</p>
+<ul>
+<li><code>godot-cpp/gen/include</code></li>
+<li><code>godot-cpp/include</code></li>
+<li><code>godot-cpp/gdextension</code></li>
+</ul>
+<p>例子：</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">g++</span> lib.c <span class="at">-o</span> demo/bin/libgdexample <span class="at">-shared</span> <span class="at">-fPIC</span> <span class="at">-Igodot-cpp</span>/gen/include <span class="at">-Igodot-cpp</span>/include <span class="at">-Igodot-cpp</span>/gdextension</span></code></pre></div>
+<p>xmake 的写法：</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>add_rules<span class="op">(</span><span class="st">&quot;mode.debug&quot;</span><span class="op">,</span> <span class="st">&quot;mode.release&quot;</span><span class="op">)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>target<span class="op">(</span><span class="st">&quot;gdexample&quot;</span><span class="op">)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    set_kind<span class="op">(</span><span class="st">&quot;shared&quot;</span><span class="op">)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    add_files<span class="op">(</span><span class="st">&quot;lib.cpp&quot;</span><span class="op">)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    add_includedirs<span class="op">(</span><span class="st">&quot;godot-cpp/gen/include&quot;</span><span class="op">)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    add_includedirs<span class="op">(</span><span class="st">&quot;godot-cpp/include&quot;</span><span class="op">)</span></span></code></pre></div>
+<h2 id="添加库搜索路径">添加库搜索路径</h2>
+<p>对于 GCC 和
+Clang，使用<code>-L</code>选项来指定库文件搜索路径，因为你需要链接<code>godot-cpp/bin/libgodot-cppxxx.xxx.xxx.so</code>，即<code>godot-cpp</code>的产物。</p>
+<p>你需要添加的目录是：<code>godot-cpp/bin</code></p>
+<p>例子：</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">g++</span> lib.c <span class="at">-o</span> demo/bin/libgdexample <span class="at">-shared</span> <span class="at">-fPIC</span> <span class="at">-Igodot-cpp</span>/gen/include <span class="at">-Igodot-cpp</span>/include <span class="at">-Igodot-cpp</span>/gdextension <span class="at">-Lgodot-cpp</span>/bin</span></code></pre></div>
+<p>xmake：</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">...</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>target<span class="op">(</span><span class="st">&quot;gdexample&quot;</span><span class="op">)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    add_linkdirs<span class="op">(</span><span class="st">&quot;godot-cpp/bin&quot;</span><span class="op">)</span></span></code></pre></div>
+<h2 id="链接-godot-cpp-的构建产物">链接 godot-cpp 的构建产物</h2>
+<p>对于 GCC 和 Clang，使用<code>-l</code>选项来指定库文件名字</p>
+<p>Scons
+生成的文件名会带上平台等信息。所以你需要自行拼接文件名。我这里直接把它写死在脚本里了：</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">g++</span> lib.c <span class="at">-o</span> demo/bin/libgdexample <span class="at">-shared</span> <span class="at">-fPIC</span> <span class="at">-Igodot-cpp</span>/gen/include <span class="at">-Igodot-cpp</span>/include <span class="at">-Igodot-cpp</span>/gdextension <span class="at">-Lgodot-cpp</span>/bin <span class="at">-llibgodot-cpp.linux.template_debug.x86_64.a</span></span></code></pre></div>
+<p>xmake:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">...</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>target<span class="op">(</span><span class="st">&quot;gdexample&quot;</span><span class="op">)</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    add_linkdirs<span class="op">(</span><span class="st">&quot;godot-cpp/bin&quot;</span><span class="op">)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    add_links<span class="op">(</span><span class="st">&quot;libgodot-cpp.linux.template_debug.x86_64.a&quot;</span><span class="op">)</span></span></code></pre></div>
+<h2 id="指定输出名字等必要信息">指定输出名字等必要信息。</h2>
+<p>我推荐直接生成到 Godot
+项目路径的<code>bin</code>目录下，节省手动复制或剪切文件的时间。</p>
+<p>至于文件名。我推荐和 Scons
+保持一致（也就是说你需要自己拼接包含平台等信息的文件名），否则你在下一步可能会陷入文件名不够用的窘境。</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">g++</span> lib.c <span class="at">-o</span> demo/bin/libgdexample.linux.template_debug.x86_64.so <span class="at">-shared</span> <span class="at">-fPIC</span> <span class="at">-Igodot-cpp</span>/gen/include <span class="at">-Igodot-cpp</span>/include <span class="at">-Igodot-cpp</span>/gdextension <span class="at">-Lgodot-cpp</span>/bin <span class="at">-llibgodot-cpp.linux.template_debug.x86_64.a</span></span></code></pre></div>
+<p>xmake:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>add_rules<span class="op">(</span><span class="st">&quot;mode.debug&quot;</span><span class="op">,</span> <span class="st">&quot;mode.release&quot;</span><span class="op">)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>set_targetdir<span class="op">(</span><span class="st">&quot;demo/bin&quot;</span><span class="op">)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>target<span class="op">(</span><span class="st">&quot;gdexample&quot;</span><span class="op">)</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    set_filename<span class="op">(</span><span class="st">&quot;libgdexample.linux.template_debug.x86_64.so&quot;</span><span class="op">)</span></span></code></pre></div>
+          <footer>
+            <p>© BlockyDeer 2024-2025</p>
+          </footer>
+        </div>
+    </div>
+    <button class="back-to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">点我回家</button>
+    <script src="/script.js"></script>
+</body>
+</html>
