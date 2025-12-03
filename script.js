@@ -77,6 +77,7 @@ function toggleSidebar() {
 
 // 初始化
 window.onload = function () {
+    toggleSidebar();
     setTitle();
     setDynamicResourcePaths();
     loadList(dataUrl);
