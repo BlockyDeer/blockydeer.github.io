@@ -1,0 +1,490 @@
+---
+title: "OpenAL 中文教程（或者叫OpenAL笔记）"
+published: 2025-07-27
+category: OpenAL
+tags: [OpenAL, C, C++]
+image: "./assets/openal.png"
+draft: false
+---
+
+~*不要退出QwQ， 我可以表演一下当猫娘喵。*~
+
+U2B和B站都已经被OpenAI教程占领了，现在搜索OpenAL它会认为你拼错了……不管怎样，这是一个OpenAL的中文教程。
+
+*其实更像是笔记*
+
+## OpenAL是做什么的
+
+据我所知，是一个3D音频库，现在常见的一个开源实现是[OpenAL Soft](https://github.com/kcat/openal-soft)。
+
+## 一些概念
+
+想象你现在正在一个大剧院里，大剧院当然有很多人。舞台上有演员，台下有观众，那么：
+
+-   演员：Source  
+    声音从哪里来？它可以拥有一个位置和一个方向，表明它正在向哪个方向播放音频。
+-   观众：Listener  
+    你的耳朵在哪里？是一个位置。
+-   音频内容：Buffer  
+    正在放什么？这个放着你的音频。
+
+## 数据类型
+
+和OpenGL非常相似。
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">OpenAL</th>
+<th scope="col" class="org-left">OpenALC</th>
+<th scope="col" class="org-left">OpenGL</th>
+<th scope="col" class="org-left">C++</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">ALboolean</td>
+<td class="org-left">ALCboolean</td>
+<td class="org-left">GLboolean</td>
+<td class="org-left">std::int8_t</td>
+</tr>
+
+<tr>
+<td class="org-left">ALbyte</td>
+<td class="org-left">ALCbyte</td>
+<td class="org-left">GLbyte</td>
+<td class="org-left">std::int8_t</td>
+</tr>
+
+<tr>
+<td class="org-left">ALubyte</td>
+<td class="org-left">ALCubyte</td>
+<td class="org-left">GLubyte</td>
+<td class="org-left">std::uint8_t</td>
+</tr>
+
+<tr>
+<td class="org-left">ALchar</td>
+<td class="org-left">ALCchar</td>
+<td class="org-left">GLchar</td>
+<td class="org-left">char</td>
+</tr>
+
+<tr>
+<td class="org-left">ALshort</td>
+<td class="org-left">ALCshort</td>
+<td class="org-left">GLshort</td>
+<td class="org-left">std::int16_t</td>
+</tr>
+
+<tr>
+<td class="org-left">ALushort</td>
+<td class="org-left">ALCushort</td>
+<td class="org-left">GLushort</td>
+<td class="org-left">std::uint16_t</td>
+</tr>
+
+<tr>
+<td class="org-left">ALint</td>
+<td class="org-left">ALCint</td>
+<td class="org-left">GLint</td>
+<td class="org-left">std::int32_t</td>
+</tr>
+
+<tr>
+<td class="org-left">ALuint</td>
+<td class="org-left">ALCuint</td>
+<td class="org-left">GLuint</td>
+<td class="org-left">std::uint32_t</td>
+</tr>
+
+<tr>
+<td class="org-left">ALsizei</td>
+<td class="org-left">ALCsizei</td>
+<td class="org-left">GLsizei</td>
+<td class="org-left">std::int32_t</td>
+</tr>
+
+<tr>
+<td class="org-left">ALenum</td>
+<td class="org-left">ALCenum</td>
+<td class="org-left">GLenum</td>
+<td class="org-left">std::uint32_t</td>
+</tr>
+
+<tr>
+<td class="org-left">ALfloat</td>
+<td class="org-left">ALCfloat</td>
+<td class="org-left">GLfloat</td>
+<td class="org-left">float</td>
+</tr>
+
+<tr>
+<td class="org-left">ALdouble</td>
+<td class="org-left">ALCdouble</td>
+<td class="org-left">GLdouble</td>
+<td class="org-left">double</td>
+</tr>
+
+<tr>
+<td class="org-left">ALvoid</td>
+<td class="org-left">ALCvoid</td>
+<td class="org-left">GLvoid</td>
+<td class="org-left">void</td>
+</tr>
+</tbody>
+</table>
+
+
+<a id="org2a8ba0f"></a>
+
+## 所以OpenALC是什么？
+
+它是Open Audio Library Context（直译：开源音频库上下文）。它管你用什么东西播放音频，比如你的扬声器或者是耳机。而OpenAL不管这些。
+
+
+<a id="org9a9fe28"></a>
+
+## 关于加载音频
+
+OpenAL不提供这样的功能（就像OpenGL不提供图像加载一样），你需要自己想其他办法。加载wav可以用[这个](https://github.com/adamstark/AudioFile)，ogg可以用[这个](https://github.com/adamstark/AudioFile)或者[libogg和libvorbis](https://xiph.org/downloads/)。
+
+
+<a id="org4a8bf53"></a>
+
+## 开始吧
+
+首先你需要打开音频设备：
+
+```cpp
+#include <AL/al.h>
+#include <AL/alc.h>
+
+ALCdevice *device = alcOpenDevice(nullptr);
+if (device == nullptr) {
+  // 打开失败
+}
+```
+
+`nullptr` 或者 `NULL` 参数表示使用系统的默认音频设备。
+
+和OpenGL一样，你需要一个上下文。不过OpenAL的更简单一些：
+
+```cpp
+ALCcontext *context = alcCreateContext(device, nullptr);
+if (context == nullptr) {
+  // 失败
+}
+```
+
+关于 `alcCreateContext` 的第二个参数，它是用于指定属性的列表：
+
+```cpp
+const ALCint attrib_list[] = {
+  ALC_FREQUENCY, 44100,
+  ALC_REFRESH, 60,
+  ALC_SYNC, ALC_FALSE,
+  0 // 你需要一个0来终止列表
+};
+ALCcontext *context = alcCreateContext(device, attrib_list);
+if (context == nullptr) {
+  // 失败
+}
+```
+
+下面是一些属性：
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">名称</th>
+<th scope="col" class="org-left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">ALC_FREQUENCY</td>
+<td class="org-left">输出Buffer的频率，以赫兹(Hz)为单位（例如44100）</td>
+</tr>
+
+<tr>
+<td class="org-left">ALC_REFRESH</td>
+<td class="org-left">刷新间隔，以赫兹(Hz)为单位</td>
+</tr>
+
+<tr>
+<td class="org-left">ALC_SYNC</td>
+<td class="org-left">如果为真，上下文将会是同步的（而非异步的），通常我们用 <code>ALC_FALSE</code></td>
+</tr>
+
+<tr>
+<td class="org-left">ALC_MONO_SOURCES</td>
+<td class="org-left">分配的单声道音源数量</td>
+</tr>
+
+<tr>
+<td class="org-left">ALC_STEREO_SOURCES</td>
+<td class="org-left">和上面一样，只不过是立体声</td>
+</tr>
+</tbody>
+</table>
+
+注意：这些只是请求，实际可能不是你指定的那样。
+
+将上下文设置成当前上下文：
+
+```cpp
+if (!alcMakeContextCurrent(context)) {
+  // 失败
+}
+```
+
+当然，我们用完了得释放资源，在你的程序最后加上：
+
+```cpp
+alcDestroyContext(context);
+alcCloseDevice(device);
+```
+
+## 准备Buffer
+
+首先我们得告诉OpenAL我们需要一个Buffer，生成Buffer我们需要用到函数alGenBuffers：
+
+```cpp
+ALuint buffer;
+alGenBuffers(1, &buffer);
+```
+
+和OpenGL一样，第一个参数是我们要生成的数量，这里我们只要一个，所以我们填1；第二个参数是一个指向ID的指针，所以我们把buffer变量取地址传进去。
+
+
+<a id="org60e3071"></a>
+
+## 错误处理
+
+如果你想要知道哪里发生了错误……使用 `alGetError` ，和OpenGL一样，它会返回一个整数错误码，0表示没有错误。其他常见的值如下：
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">标识</th>
+<th scope="col" class="org-left">描述</th>
+<th scope="col" class="org-left">数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AL_NO_ERROR</td>
+<td class="org-left">(0)没有错误</td>
+<td class="org-left">0</td>
+</tr>
+
+<tr>
+<td class="org-left">AL_INVALID_NAME</td>
+<td class="org-left">传进去的ID不合法</td>
+<td class="org-left">0xA001(40961)</td>
+</tr>
+
+<tr>
+<td class="org-left">AL_INVALID_ENUM</td>
+<td class="org-left">传进去了一个不合法的枚举</td>
+<td class="org-left">0xA002(40962)</td>
+</tr>
+
+<tr>
+<td class="org-left">AL_INVALID_VALUE</td>
+<td class="org-left">值不合法</td>
+<td class="org-left">0xA003(40963)</td>
+</tr>
+
+<tr>
+<td class="org-left">AL_INVALID_OEPRATION</td>
+<td class="org-left">请求的操作不合法（比如错误的上下文状态）</td>
+<td class="org-left">0xA004(40964)</td>
+</tr>
+
+<tr>
+<td class="org-left">AL_OUT_OF_MEMORY</td>
+<td class="org-left">正如其名，（声卡）内存不足</td>
+<td class="org-left">0xA005(40965)</td>
+</tr>
+</tbody>
+</table>
+
+注意：当它被调用的时候，它会清除所有错误标记。换言之，如果返回了一个错误，你无法确定那是唯一的一个标记。
+
+
+<a id="orgc686d6f"></a>
+
+## 加载音频
+
+这需要用音频库，我这里用 `stb_vorbis.c` ：
+
+```cpp
+// 在另一个头文件里写 stb_vorbis.h
+#define STB_VORBIS_HEADER_ONLY
+#include "stb_vorbis.c"
+
+// 你的main.cpp
+#include "stb_vorbis.h"
+
+int length;
+int channels;
+int sample_rate;
+int error;
+// 加载的ogg文件路径
+std::string file_name = "./test.ogg";
+stb_vorbis *vorbis = stb_vorbis_open_filename(file_name.c_str(), &error, nullptr);
+if (vorbis == nullptr) {
+  std::cerr << "打开OGG文件失败: " << file_name << '\n';
+  return -1;
+}
+stb_vorbis_info info = stb_vorbis_get_info(vorbis);
+channels = info.channels;
+sample_rate = info.sample_rate;
+// 总样本数
+unsigned int total_samples =   stb_vorbis_stream_length_in_samples(vorbis);
+length = total_samples * info.channels;
+std::vector<short> data(length);
+// 解码实际数据
+int samples_decoded = stb_vorbis_get_samples_short_interleaved(
+    vorbis, info.channels, data.data(), length);
+if ((unsigned int)samples_decoded < total_samples) {
+  std::cerr << "Warning: did not decode all samples\n";
+}
+stb_vorbis_close(vorbis);
+```
+
+我们暂时只需要其中的channels数量和每sample位数，而stb\_vorbis解码为16位PCM。
+
+为什么vector的元素类型是short：因为16位数字占两个字节，而在大多数平台上，short类型是两字节的。
+
+
+<a id="org735c2eb"></a>
+
+## 检查音频数据的格式
+
+接下来你需要检查音频数据的格式，告诉OpenAL如何处理你的数据：
+
+```cpp
+// 上面已经提到了，在不进行特别修改的情况下，
+// stb_vorbis只能解码为16位PCM，所以我这里直接写成常量
+const int bits_per_sample = 16;
+
+ALenum format;
+if (channels == 1 && bits_per_sample == 8) {
+  format = AL_FORMAT_MONO8;
+} else if (channels == 1 && bits_per_sample == 16) {
+  format = AL_FORMAT_MONO16;
+} else if (channels == 2 && bits_per_sample == 8) {
+  format = AL_FORMAT_STEREO8;
+} else if (channels == 2 && bits_per_sample == 16) {
+  format = AL_FORMAT_STEREO16;
+} else {
+  // 未知格式
+}
+```
+
+声音数据是这样的：我们有一个或者多个通道（一个勉强的解释是：你的耳朵数量大于1），而每个sample有很多位，数据由sample组成。
+
+以及，为了满足你的好奇心。英语中mono表示单声道，stereo表示立体声。
+
+## 总sample数的计算
+
+事实上，如果你只是跟着我提供的这个例子做的话，你不需要算这两个东西。直接跳到[上传数据，填充Buffer](#uploadData)就可以了。
+
+```cpp
+int number_of_samples = data_size / (number_of_channels * (bits_per_sample / 8));
+```
+
+## 总时长的计算
+
+```cpp
+size_t duration = number_of_samples / sample_rate;
+```
+
+## <span id="uploadData">上传数据，填充Buffer</span>
+
+现在我们终于可以上传数据了：
+
+```cpp
+alBufferData(buffer, format, data.data(), data.size() * sizeof(short), sample_rate);
+```
+
+## 我们还需要一个Source
+
+别忘了OpenAL是一个3D音频库，所以我们还需要一个喇叭。
+
+```cpp
+// 生成Source
+ALuint source;
+alGenSources(1, &source);
+// 设置属性
+alSourcef(source, AL_PITCH, 1);
+alSourcef(source, AL_GAIN, 1.0f);
+alSource3f(source, AL_POSITION, 0, 0, 0);
+alSource3f(source, AL_VELOCITY, 0, 0, 0);
+alSourcei(source, AL_LOOPING, AL_FALSE);
+alSourcei(source, AL_BUFFER, buffer);
+```
+
+你可以看到一些东西，比如我们的位置( `AL_POSITION` )，和喇叭的朝向( `AL_VELOCITY` )。
+
+解释一下其余东西：
+
+-   `AL_LOOPING` ：它表示是否循环播放，这里我们不需要，所以设置假。
+-   `AL_GAIN` ：一个更常见的名字是音量。这里我们设置1.0。
+-   `AL_BUFFER` ：这很明显了，不解释它了。
+
+## 播放声音
+
+```cpp
+alSourcePlay(source);
+ALint state = AL_PLAYING;
+while (state == AL_PLAYING) {
+  alGetSourcei(source, AL_SOURCE_STATE, &state);
+}
+```
+
+我们调用 `alSourcePlayer` 开始播放Source。然后我们准备一个用来存储 `AL_SOURCE_STATE` 的东西。然后在循环中更新它的值。这样就可以等待它播放完成（变成 `AL_STOPPED` ）。
+
+## 清理
+
+我们已经讲过关闭设备和上下文了。我们还有一个Source和Buffer需要清理：
+
+```cpp
+alDeleteSource(1, &source);
+alDeleteBuffers(1, &buffer);
+```
+
+:::warning
+尽量不要尝试放歌曲。这些代码只是把音频整个解码到内存中再播放。这样对于较长的文件（比如完整的歌曲）是有问题的，一个是加载时间长。第二个是占内存太大了（实测5分钟音乐能占120MB左右的内存）。后面我们会介绍其他方法来播放歌曲。
+:::
+
