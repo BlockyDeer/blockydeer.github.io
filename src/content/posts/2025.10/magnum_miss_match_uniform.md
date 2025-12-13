@@ -2,7 +2,7 @@
 title: "Magnum setUniform 设置 Matrix4 失败"
 published: 2025-10-27
 category: C++
-tags: [Magnum, OpenGL]
+tags: [Magnum, OpenGL, C++]
 draft: false
 ---
 
