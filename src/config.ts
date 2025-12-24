@@ -249,17 +249,17 @@ export const profileConfig: ProfileConfig = {
 		{
 			name: "Bilibli",
 			icon: "fa6-brands:bilibili",
-			url: "https://space.bilibili.com/701864046",
+			url: "https://space.bilibili.com/479389779",
 		},
 		{
 			name: "GitHub",
 			icon: "fa6-brands:github",
-			url: "https://github.com/matsuzaka-yuki",
+			url: "https://github.com/BlockyDeer",
 		},
 		{
 			name: "Codeberg",
 			icon: "simple-icons:codeberg",
-			url: "https://codeberg.org",
+			url: "https://codeberg.org/BlockyDeer",
 		},
 	],
 };
