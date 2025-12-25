@@ -5,6 +5,13 @@ category: Bevy Engine
 tags: [Rust, Bevy Engine, Bevy, ECS, 游戏开发]
 ---
 
+我这里使用的 Bevy Engine 版本是`0.17.3`，于2025年11月18日发布：
+
+```toml
+[dependencies]
+bevy = { version = "0.17.3", features = ["dynamic_linking"] }
+```
+
 ## 关于 ECS (Entity Component System)
 
 这是我的博客中提到 ECS 的第一篇文章。我想我需要先对 ECS 进行一个快速概述。
