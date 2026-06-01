@@ -216,15 +216,10 @@ class ResourceManager {
     if (this.pendingMap.has(key)) {
       return this.pendingMap.get(key);
     } else {
-      const promise = loader(this)
-        .then((result) => {
-          this.pendingMap.delete(key);
-          return result;
-        })
-        .catch((error) => {
-          this.pendingMap.delete(key);
-          throw error;
-        });
+      const promise = loader(this).catch((error) => {
+        this.pendingMap.delete(key);
+        throw error;
+      });
       this.pendingMap.set(key, promise);
       return promise;
     }
