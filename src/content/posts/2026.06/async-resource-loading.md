@@ -171,6 +171,21 @@ class ResourceManager {
     return promise;
   }
 }
+
+async function loadProfileKaltsit() {
+  console.log("加载老猞猁的档案");
+  await waitfor(1000);
+  const resource = { name: "Kal'tsit", age_atleast: 13000 };
+  console.log("老猞猁的档案加载完成");
+  return resource;
+}
+
+async function outputKaltsit(step) {
+  console.log(`${step} 调用`);
+  const profile = await resourceManager.require("profile1", loadProfileKaltsit);
+  console.log(profile);
+  return profile;
+}
 ```
 
 输出：
@@ -185,3 +200,57 @@ A 调用
 ```
 
 可以看到结果正确了。
+
+## 更新：改进
+
+Promise会存储结果，所以不用存储结果到一个专门的Map里面，可以直接存Promise。
+
+```javascript
+class ResourceManager {
+  constructor() {
+    // string key -> Promise
+    this.pendingMap = new Map();
+  }
+
+  require(key, loader) {
+    if (this.pendingMap.has(key)) {
+      return this.pendingMap.get(key);
+    } else {
+      const promise = loader(this)
+        .then((result) => {
+          this.pendingMap.delete(key);
+          return result;
+        })
+        .catch((error) => {
+          this.pendingMap.delete(key);
+          throw error;
+        });
+      this.pendingMap.set(key, promise);
+      return promise;
+    }
+  }
+}
+
+async function loadProfileKaltsit() {
+  console.log("加载老猞猁的档案");
+  await waitfor(1000);
+  const resource = { name: "Kal'tsit", age_atleast: 13000 };
+  console.log("老猞猁的档案加载完成");
+  return resource;
+}
+
+const b = outputKaltsit("B");
+await waitfor(100);
+const a = outputKaltsit("A");
+
+await randomDelay();
+const br = await b;
+await randomDelay();
+const ba = await a;
+```
+
+两次await的结果是一样的，它们都是同一个对象：
+
+```javascript
+console.log(ba === br); // true
+```
